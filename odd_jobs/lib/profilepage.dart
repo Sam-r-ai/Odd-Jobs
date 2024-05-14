@@ -40,7 +40,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
     if (_image != null) {
       profileImage = FileImage(_image!);
     } else {
-      profileImage = NetworkImage('https://picsum.photos/200');
+      profileImage = const NetworkImage('https://picsum.photos/200');
     }
 
     return Scaffold(
@@ -66,7 +66,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
               const SizedBox(height: 16.0),
               TextFormField(
                 controller: _firstNameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'First Name',
                   border: OutlineInputBorder(),
                 ),
@@ -77,7 +77,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
               const SizedBox(height: 16.0),
               TextFormField(
                 controller: _lastNameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Last Name',
                   border: OutlineInputBorder(),
                 ),
