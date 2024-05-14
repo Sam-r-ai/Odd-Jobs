@@ -30,19 +30,6 @@ class _MessagePageWidgetState extends State<MessagePageWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: Theme.of(context).primaryColorLight,
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).primaryColor,
-          automaticallyImplyLeading: false,
-          title: Text(
-            'OddJobs',
-            style: GoogleFonts.outfit(
-              color: Colors.white,
-              fontSize: 22,
-            ),
-          ),
-          centerTitle: true,
-          elevation: 2,
-        ),
         body: SafeArea(
           top: true,
           child: Column(

@@ -1,15 +1,19 @@
-//Hello Bryant
-// yall heard
+// Jyant Productions
+// Justin Cheung
+// Bryant Hernandez
+// CSCI 467 Final Project
+// OddJobs
 
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'homepage.dart'; // Ensure these imports match the actual file names
-import 'loginpage.dart';
+import 'homepage.dart'; 
+import 'uploadpage.dart';
 import 'messagepage.dart';
 import 'profilepage.dart';
-import 'uploadpage.dart';
+import 'loginpage.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -19,7 +23,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      title: 'Flutter Multi-Page App with Bottom Nav',
+      title: 'OddJobs',
       home: HomePage(),
     );
   }
@@ -35,11 +39,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final List<Widget> _pages = [
-    const HomePageWidget(),  // Corrected class names
-    const LoginPageWidget(),
+    const HomePageWidget(),  
+    const UploadPageWidget(),
     const MessagePageWidget(),
     const ProfilePageWidget(),
-    const UploadPageWidget(),
+    const LoginPageWidget(),
   ];
 
   void _onTabTapped(int index) {
@@ -52,7 +56,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flutter Multi-Page App with Bottom Nav'),
+        title: const Text('OddJobs'),
+        centerTitle: true,
+        backgroundColor: Theme.of(context).primaryColor,
       ),
       body: IndexedStack(
         index: _currentIndex,
@@ -61,6 +67,8 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: _onTabTapped,
         currentIndex: _currentIndex,
+        selectedItemColor: Colors.black,  
+        unselectedItemColor: Colors.black,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

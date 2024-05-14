@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "523281733713",
+    "project_id": "jyantoddjobs",
+    "storage_bucket": "jyantoddjobs.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:523281733713:android:8febb92326dd6e43b34070",
+        "android_client_info": {
+          "package_name": "com.example.odd_jobs"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwlVXpbht9DLt85NKQAWbdCQbt0uFKHkA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:523281733713:android:9e1b8944c82b715bb34070",
+        "android_client_info": {
+          "package_name": "com.jyant.oddjobs"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwlVXpbht9DLt85NKQAWbdCQbt0uFKHkA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
