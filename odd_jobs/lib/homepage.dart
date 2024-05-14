@@ -1,4 +1,3 @@
-// lib/homepage.dart
 import 'package:flutter/material.dart';
 
 class HomePageWidget extends StatefulWidget {
@@ -36,7 +35,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Colors.white,  
         drawer: Drawer(
           elevation: 16,
           child: Column(
@@ -210,20 +209,6 @@ class _HomePageWidgetState extends State<HomePageWidget> {
             ],
           ),
         ),
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).primaryColor,
-          automaticallyImplyLeading: false,
-          title: const Text(
-            'OddJobs',
-            style: TextStyle(
-              fontFamily: 'Outfit',
-              color: Colors.white,
-              fontSize: 22,
-            ),
-          ),
-          centerTitle: true,
-          elevation: 2,
-        ),
         body: SafeArea(
           top: true,
           child: Column(
@@ -272,7 +257,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     child: IconButton(
                       icon: Icon(
                         Icons.location_on_sharp,
-                        color: Theme.of(context).primaryTextTheme.bodyLarge!.color,
+                        color: Theme.of(context).primaryColor,
                         size: 24,
                       ),
                       onPressed: () {
@@ -378,3 +363,4 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     );
   }
 }
+
