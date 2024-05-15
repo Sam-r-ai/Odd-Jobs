@@ -32,17 +32,22 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     super.dispose();
   }
 
+  // Convert Pay to a number for comparison
+  num _parsePay(String pay) {
+    return num.tryParse(pay.replaceAll('\$', '').trim()) ?? 0;
+  }
+
   Query<Map<String, dynamic>> _getQueryBasedOnFilter() {
     Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('Jobs');
     switch (_selectedPayRange) {
       case PayRange.easy:
-        query = query.where('Pay', isGreaterThanOrEqualTo: 15).where('Pay', isLessThanOrEqualTo: 50);
+        query = query.where('Pay', isGreaterThanOrEqualTo: '15').where('Pay', isLessThanOrEqualTo: '50');
         break;
       case PayRange.medium:
-        query = query.where('Pay', isGreaterThan: 50).where('Pay', isLessThanOrEqualTo: 250);
+        query = query.where('Pay', isGreaterThan: '50').where('Pay', isLessThanOrEqualTo: '250');
         break;
       case PayRange.bigBoy:
-        query = query.where('Pay', isGreaterThan: 250);
+        query = query.where('Pay', isGreaterThan: '250');
         break;
       case PayRange.all:
       default:
@@ -367,7 +372,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 child: Padding(
                   padding: const EdgeInsets.all(4),
                   child: StreamBuilder<QuerySnapshot>(
-                    stream: _getQueryBasedOnFilter().snapshots(),
+                    stream: FirebaseFirestore.instance.collection('Jobs').snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
@@ -376,7 +381,21 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                         return const Center(child: Text('Error fetching jobs'));
                       }
 
-                      final jobs = snapshot.data!.docs;
+                      final jobs = snapshot.data!.docs.where((doc) {
+                        final job = doc.data() as Map<String, dynamic>;
+                        final pay = _parsePay(job['Pay']);
+                        switch (_selectedPayRange) {
+                          case PayRange.easy:
+                            return pay >= 15 && pay <= 50;
+                          case PayRange.medium:
+                            return pay > 50 && pay <= 250;
+                          case PayRange.bigBoy:
+                            return pay > 250;
+                          case PayRange.all:
+                          default:
+                            return true;
+                        }
+                      }).toList();
 
                       return GridView.builder(
                         padding: EdgeInsets.zero,
@@ -450,7 +469,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                   Padding(
                                     padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
                                     child: Text(
-                                      job['Pay'] ?? 'Pay',
+                                      job['Pay'] != null ? '\$${job['Pay']}' : 'Pay',
                                       style: const TextStyle(
                                         fontFamily: 'Readex Pro',
                                       ),
