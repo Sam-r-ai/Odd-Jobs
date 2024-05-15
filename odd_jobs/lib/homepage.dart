@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'jobviewpage.dart';
 
+enum PayRange { easy, medium, bigBoy, all }
+
 class HomePageWidget extends StatefulWidget {
   const HomePageWidget({super.key});
 
@@ -14,6 +16,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   TextEditingController? _searchBarTextController;
   FocusNode? _searchBarFocusNode;
   double? _expDistSliderValue = 1.0;
+  PayRange _selectedPayRange = PayRange.all;
 
   @override
   void initState() {
@@ -27,6 +30,31 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     _searchBarTextController?.dispose();
     _searchBarFocusNode?.dispose();
     super.dispose();
+  }
+
+  // Convert Pay to a number for comparison
+  num _parsePay(String pay) {
+    return num.tryParse(pay.replaceAll('\$', '').trim()) ?? 0;
+  }
+
+  Query<Map<String, dynamic>> _getQueryBasedOnFilter() {
+    Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('Jobs');
+    switch (_selectedPayRange) {
+      case PayRange.easy:
+        query = query.where('Pay', isGreaterThanOrEqualTo: '15').where('Pay', isLessThanOrEqualTo: '50');
+        break;
+      case PayRange.medium:
+        query = query.where('Pay', isGreaterThan: '50').where('Pay', isLessThanOrEqualTo: '250');
+        break;
+      case PayRange.bigBoy:
+        query = query.where('Pay', isGreaterThan: '250');
+        break;
+      case PayRange.all:
+      default:
+        // No filter
+        break;
+    }
+    return query;
   }
 
   @override
@@ -85,25 +113,33 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               ),
               Padding(
                 padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
-                child: Container(
-                  width: 155,
-                  height: 51,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF39D28A),
-                    boxShadow: const [
-                      BoxShadow(
-                        blurRadius: 4,
-                        color: Color(0x33000000),
-                        offset: Offset(0, 2),
-                      )
-                    ],
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Easy: 15 to 50\$',
-                      style: TextStyle(
-                        fontFamily: 'Readex Pro',
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedPayRange = PayRange.easy;
+                      Navigator.pop(context);
+                    });
+                  },
+                  child: Container(
+                    width: 155,
+                    height: 51,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF39D28A),
+                      boxShadow: const [
+                        BoxShadow(
+                          blurRadius: 4,
+                          color: Color(0x33000000),
+                          offset: Offset(0, 2),
+                        )
+                      ],
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Easy: 15 to 50\$',
+                        style: TextStyle(
+                          fontFamily: 'Readex Pro',
+                        ),
                       ),
                     ),
                   ),
@@ -111,25 +147,33 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               ),
               Padding(
                 padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 2),
-                child: Container(
-                  width: 155,
-                  height: 51,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD8E74A),
-                    boxShadow: const [
-                      BoxShadow(
-                        blurRadius: 4,
-                        color: Color(0x33000000),
-                        offset: Offset(0, 2),
-                      )
-                    ],
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Medium: 50 to 250\$',
-                      style: TextStyle(
-                        fontFamily: 'Readex Pro',
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedPayRange = PayRange.medium;
+                      Navigator.pop(context);
+                    });
+                  },
+                  child: Container(
+                    width: 155,
+                    height: 51,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD8E74A),
+                      boxShadow: const [
+                        BoxShadow(
+                          blurRadius: 4,
+                          color: Color(0x33000000),
+                          offset: Offset(0, 2),
+                        )
+                      ],
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Medium: 50 to 250\$',
+                        style: TextStyle(
+                          fontFamily: 'Readex Pro',
+                        ),
                       ),
                     ),
                   ),
@@ -137,25 +181,67 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               ),
               Padding(
                 padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
-                child: Container(
-                  width: 155,
-                  height: 51,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD25139),
-                    boxShadow: const [
-                      BoxShadow(
-                        blurRadius: 4,
-                        color: Color(0x33000000),
-                        offset: Offset(0, 2),
-                      )
-                    ],
-                    borderRadius: BorderRadius.circular(24),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedPayRange = PayRange.bigBoy;
+                      Navigator.pop(context);
+                    });
+                  },
+                  child: Container(
+                    width: 155,
+                    height: 51,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD25139),
+                      boxShadow: const [
+                        BoxShadow(
+                          blurRadius: 4,
+                          color: Color(0x33000000),
+                          offset: Offset(0, 2),
+                        )
+                      ],
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Big Boy Jobs \$\$\$',
+                        style: TextStyle(
+                          fontFamily: 'Readex Pro',
+                        ),
+                      ),
+                    ),
                   ),
-                  child: const Center(
-                    child: Text(
-                      'Big Boy Jobs \$\$\$',
-                      style: TextStyle(
-                        fontFamily: 'Readex Pro',
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 2),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedPayRange = PayRange.all;
+                      Navigator.pop(context);
+                    });
+                  },
+                  child: Container(
+                    width: 155,
+                    height: 51,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF39A9D2),
+                      boxShadow: const [
+                        BoxShadow(
+                          blurRadius: 4,
+                          color: Color(0x33000000),
+                          offset: Offset(0, 2),
+                        )
+                      ],
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'All Jobs',
+                        style: TextStyle(
+                          fontFamily: 'Readex Pro',
+                        ),
                       ),
                     ),
                   ),
@@ -295,7 +381,21 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                         return const Center(child: Text('Error fetching jobs'));
                       }
 
-                      final jobs = snapshot.data!.docs;
+                      final jobs = snapshot.data!.docs.where((doc) {
+                        final job = doc.data() as Map<String, dynamic>;
+                        final pay = _parsePay(job['Pay']);
+                        switch (_selectedPayRange) {
+                          case PayRange.easy:
+                            return pay >= 15 && pay <= 50;
+                          case PayRange.medium:
+                            return pay > 50 && pay <= 250;
+                          case PayRange.bigBoy:
+                            return pay > 250;
+                          case PayRange.all:
+                          default:
+                            return true;
+                        }
+                      }).toList();
 
                       return GridView.builder(
                         padding: EdgeInsets.zero,
@@ -369,7 +469,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                   Padding(
                                     padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
                                     child: Text(
-                                      job['Pay'] ?? 'Pay',
+                                      job['Pay'] != null ? '\$${job['Pay']}' : 'Pay',
                                       style: const TextStyle(
                                         fontFamily: 'Readex Pro',
                                       ),
@@ -392,4 +492,3 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     );
   }
 }
-
