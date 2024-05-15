@@ -1,3 +1,9 @@
+// Jyant Productions
+// Justin Cheung
+// Bryant Hernandez
+// CSCI 467 Final Project
+// OddJobs
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -70,7 +76,6 @@ class _UploadPageWidgetState extends State<UploadPageWidget> {
     final String pay = _payTextController.text;
 
     if (jobTitle.isNotEmpty && description.isNotEmpty && location.isNotEmpty && pay.isNotEmpty) {
-      // You can add more validations as needed
 
       try {
         String? imageUrl;
