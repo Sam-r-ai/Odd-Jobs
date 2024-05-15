@@ -1,7 +1,13 @@
-import 'dart:io'; // Required for File
+// Jyant Productions
+// Justin Cheung
+// Bryant Hernandez
+// CSCI 467 Final Project
+// OddJobs
+
+import 'dart:io'; 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart'; // Import image_picker
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
+import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -24,7 +30,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
   final TextEditingController _stateController = TextEditingController();
   final TextEditingController _zipController = TextEditingController();
 
-  File? _image; // Variable to hold the image file
+  File? _image; 
   final ImagePicker _picker = ImagePicker();
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -33,7 +39,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
     final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
     if (photo != null) {
       setState(() {
-        _image = File(photo.path); // Set image file
+        _image = File(photo.path); 
       });
     }
   }
@@ -51,7 +57,9 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
       'Skills': _skillsController.text,
       'State': _stateController.text,
       'Zip Code': int.tryParse(_zipController.text) ?? 0,
-      'Contacts': ['Bryant'] // Update this as needed for dynamic contacts management
+      'Contacts': ['Bryant'] // Everyone gets free connect with Bryant who uses this app
+                             // If you don't have my phone number, you don't know me well enough 
+                             // To have a problem with me.
     };
 
     try {

@@ -1,3 +1,9 @@
+// Jyant Productions
+// Justin Cheung
+// Bryant Hernandez
+// CSCI 467 Final Project
+// OddJobs
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'jobviewpage.dart';
@@ -17,12 +23,19 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   FocusNode? _searchBarFocusNode;
   double? _expDistSliderValue = 1.0;
   PayRange _selectedPayRange = PayRange.all;
+  String _searchQuery = "";
 
   @override
   void initState() {
     super.initState();
     _searchBarTextController = TextEditingController();
     _searchBarFocusNode = FocusNode();
+
+    _searchBarTextController?.addListener(() {
+      setState(() {
+        _searchQuery = _searchBarTextController?.text ?? "";
+      });
+    });
   }
 
   @override
@@ -39,6 +52,11 @@ class _HomePageWidgetState extends State<HomePageWidget> {
 
   Query<Map<String, dynamic>> _getQueryBasedOnFilter() {
     Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('Jobs');
+
+    if (_searchQuery.isNotEmpty) {
+      query = query.where('Description', isGreaterThanOrEqualTo: _searchQuery).where('Description', isLessThanOrEqualTo: _searchQuery + '\uf8ff');
+    }
+
     switch (_selectedPayRange) {
       case PayRange.easy:
         query = query.where('Pay', isGreaterThanOrEqualTo: '15').where('Pay', isLessThanOrEqualTo: '50');
@@ -99,7 +117,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 width: MediaQuery.of(context).size.width,
                 height: 50,
                 color: Colors.grey,
-                child: const Center(child: Text('Ad Banner Placeholder')),
+                child: const Center(child: Text('DOWNLOAD RAID SHADOW LEGENDS TODAY!')),
               ),
               const Padding(
                 padding: EdgeInsetsDirectional.fromSTEB(0, 16, 0, 8),
@@ -259,7 +277,9 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               ),
               ElevatedButton.icon(
                 onPressed: () {
-                  // Implement your location picker here
+                  // LOCATION BUTTON STILL NEEDS IMPLEMENTATION!!!!!
+                  // Won't work because Kotlin version is too low
+                  // Don't want to upgrade because we might break project
                 },
                 icon: const Icon(Icons.place),
                 label: const Text('Select Location'),
@@ -327,8 +347,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
                               color: Theme.of(context).primaryColor,
-                              width: 2,
-                            ),
+                              width: 2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
@@ -372,7 +391,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 child: Padding(
                   padding: const EdgeInsets.all(4),
                   child: StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance.collection('Jobs').snapshots(),
+                    stream: _getQueryBasedOnFilter().snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
@@ -384,17 +403,25 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                       final jobs = snapshot.data!.docs.where((doc) {
                         final job = doc.data() as Map<String, dynamic>;
                         final pay = _parsePay(job['Pay']);
-                        switch (_selectedPayRange) {
-                          case PayRange.easy:
-                            return pay >= 15 && pay <= 50;
-                          case PayRange.medium:
-                            return pay > 50 && pay <= 250;
-                          case PayRange.bigBoy:
-                            return pay > 250;
-                          case PayRange.all:
-                          default:
-                            return true;
-                        }
+                        final description = job['Description']?.toString().toLowerCase() ?? "";
+                        final query = _searchQuery.toLowerCase();
+
+                        final matchesSearch = query.isEmpty || description.contains(query);
+                        final matchesPayRange = () {
+                          switch (_selectedPayRange) {
+                            case PayRange.easy:
+                              return pay >= 15 && pay <= 50;
+                            case PayRange.medium:
+                              return pay > 50 && pay <= 250;
+                            case PayRange.bigBoy:
+                              return pay > 250;
+                            case PayRange.all:
+                            default:
+                              return true;
+                          }
+                        }();
+
+                        return matchesSearch && matchesPayRange;
                       }).toList();
 
                       return GridView.builder(
@@ -408,12 +435,14 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                         itemCount: jobs.length,
                         itemBuilder: (context, index) {
                           final job = jobs[index].data() as Map<String, dynamic>;
+                          final documentId = snapshot.data!.docs[index].id;
                           return InkWell(
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => JobViewPage(
+                                    documentId: documentId, 
                                     jobTitle: job['JobTitle'] ?? 'Job Title',
                                     imageUrl: job['Image'] ?? 'https://picsum.photos/seed/708/600',
                                     description: job['Description'] ?? 'Description',
@@ -459,7 +488,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
                                       child: Image.network(
-                                        job['Image'] ?? 'https://picsum.photos/seed/708/600',
+                                        job['Image'] ?? 'https://picsum.photos/seed/708/600', // Picsum goated
                                         width: 339,
                                         height: 205,
                                         fit: BoxFit.cover,

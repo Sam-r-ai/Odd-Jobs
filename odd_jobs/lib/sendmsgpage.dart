@@ -1,10 +1,22 @@
+// Jyant Productions
+// Justin Cheung
+// Bryant Hernandez
+// CSCI 467 Final Project
+// OddJobs
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-class SendMsgPage extends StatefulWidget {
-  final String chatId; // The chat ID for this particular conversation
 
-  const SendMsgPage({required this.chatId, Key? key}) : super(key: key);
+class SendMsgPage extends StatefulWidget {
+  final String chatId; 
+  final String contactName;
+
+  const SendMsgPage({
+    required this.chatId,
+    required this.contactName,
+    Key? key,
+  }) : super(key: key);
 
   @override
   _SendMsgPageState createState() => _SendMsgPageState();
@@ -42,7 +54,7 @@ class _SendMsgPageState extends State<SendMsgPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat'),
+        title: Text(widget.contactName),
       ),
       body: Column(
         children: [
