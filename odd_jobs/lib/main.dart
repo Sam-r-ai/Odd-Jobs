@@ -11,7 +11,6 @@ import 'homepage.dart';
 import 'uploadpage.dart';
 import 'messagepage.dart';
 import 'profilepage.dart';
-import 'loginpage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,7 +44,7 @@ class _HomePageState extends State<HomePage> {
     const UploadPageWidget(),
     const MessagePageWidget(),
     const ProfilePageWidget(),
-    const LoginPageWidget(),
+
   ];
 
   void _onTabTapped(int index) {
