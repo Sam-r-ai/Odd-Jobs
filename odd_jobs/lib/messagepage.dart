@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'sendmsgpage.dart'; // Make sure to import the sendmsg.dart file
 
 class MessagePageWidget extends StatefulWidget {
   const MessagePageWidget({super.key});
@@ -53,54 +54,67 @@ class _MessagePageWidgetState extends State<MessagePageWidget> {
                   padding: EdgeInsets.zero,
                   itemCount: 10, // Replace with the actual number of messages
                   itemBuilder: (context, index) {
-                    return Container(
-                      width: double.infinity,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        boxShadow: const [
-                          BoxShadow(
-                            blurRadius: 4,
-                            color: Color(0x33000000),
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 80,
-                            height: 80,
-                            margin: const EdgeInsets.all(10),
-                            clipBehavior: Clip.antiAlias,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                            ),
-                            child: Image.network(
-                              'https://picsum.photos/seed/33/600',
-                              fit: BoxFit.cover,
+                    return InkWell(
+                      onTap: () {
+                        // Navigate to the SendMsgPage with the corresponding chatId
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SendMsgPage(
+                              chatId: 'chatId_$index', // Replace with actual chat ID
                             ),
                           ),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Name',
-                                  style: GoogleFonts.readexPro(),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 8),
-                                  child: Text(
-                                    'LastMessage',
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          boxShadow: const [
+                            BoxShadow(
+                              blurRadius: 4,
+                              color: Color(0x33000000),
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 80,
+                              height: 80,
+                              margin: const EdgeInsets.all(10),
+                              clipBehavior: Clip.antiAlias,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
+                              child: Image.network(
+                                'https://picsum.photos/seed/33/600',
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Name',
                                     style: GoogleFonts.readexPro(),
                                   ),
-                                ),
-                              ],
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8),
+                                    child: Text(
+                                      'LastMessage',
+                                      style: GoogleFonts.readexPro(),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   },
