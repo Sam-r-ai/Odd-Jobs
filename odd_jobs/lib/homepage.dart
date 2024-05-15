@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'jobviewpage.dart';
 
 class HomePageWidget extends StatefulWidget {
   const HomePageWidget({super.key});
@@ -11,7 +13,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController? _searchBarTextController;
   FocusNode? _searchBarFocusNode;
-  double? _expDistSliderValue = 5.0;
+  double? _expDistSliderValue = 1.0;
 
   @override
   void initState() {
@@ -35,7 +37,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Colors.white,  
+        backgroundColor: Colors.white,
         drawer: Drawer(
           elevation: 16,
           child: Column(
@@ -65,7 +67,6 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   ),
                 ),
               ),
-              // Replacing FlutterFlowAdBanner with a placeholder
               Container(
                 width: MediaQuery.of(context).size.width,
                 height: 50,
@@ -170,7 +171,6 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   ),
                 ),
               ),
-              // Placeholder for FlutterFlowPlacePicker
               ElevatedButton.icon(
                 onPressed: () {
                   // Implement your location picker here
@@ -191,8 +191,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               Slider(
                 activeColor: Theme.of(context).primaryColor,
                 inactiveColor: Theme.of(context).disabledColor,
-                min: 0,
-                max: 10,
+                min: 1,
+                max: 100,
                 value: _expDistSliderValue!,
                 onChanged: (newValue) {
                   setState(() {
@@ -285,72 +285,101 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(4),
-                  child: GridView.builder(
-                    padding: EdgeInsets.zero,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                      childAspectRatio: 1,
-                    ),
-                    itemCount: 10, // Adjust this to your data source length
-                    itemBuilder: (context, index) {
-                      return Card(
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        color: Theme.of(context).cardColor,
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance.collection('Jobs').snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return const Center(child: Text('Error fetching jobs'));
+                      }
+
+                      final jobs = snapshot.data!.docs;
+
+                      return GridView.builder(
+                        padding: EdgeInsets.zero,
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                          childAspectRatio: 1,
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
-                              child: Container(
-                                width: 100,
-                                height: 25,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor,
-                                ),
-                                child: const Align(
-                                  alignment: AlignmentDirectional(0, -1),
-                                  child: Text(
-                                    'Job Title',
-                                    style: TextStyle(
-                                      fontFamily: 'Readex Pro',
-                                    ),
+                        itemCount: jobs.length,
+                        itemBuilder: (context, index) {
+                          final job = jobs[index].data() as Map<String, dynamic>;
+                          return InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => JobViewPage(
+                                    jobTitle: job['JobTitle'] ?? 'Job Title',
+                                    imageUrl: job['Image'] ?? 'https://picsum.photos/seed/708/600',
+                                    description: job['Description'] ?? 'Description',
+                                    pay: job['Pay'] ?? 'Pay',
                                   ),
                                 ),
-                              ),
-                            ),
-                            Container(
-                              width: 138,
-                              height: 108,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).cardColor,
-                              ),
-                              child: ClipRRect(
+                              );
+                            },
+                            child: Card(
+                              clipBehavior: Clip.antiAliasWithSaveLayer,
+                              color: Theme.of(context).cardColor,
+                              elevation: 4,
+                              shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
-                                  'https://picsum.photos/seed/708/600',
-                                  width: 339,
-                                  height: 205,
-                                  fit: BoxFit.cover,
-                                ),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: 25,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).cardColor,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          job['JobTitle'] ?? 'Job Title',
+                                          style: const TextStyle(
+                                            fontFamily: 'Readex Pro',
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 138,
+                                    height: 108,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).cardColor,
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.network(
+                                        job['Image'] ?? 'https://picsum.photos/seed/708/600',
+                                        width: 339,
+                                        height: 205,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
+                                    child: Text(
+                                      job['Pay'] ?? 'Pay',
+                                      style: const TextStyle(
+                                        fontFamily: 'Readex Pro',
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            const Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
-                              child: Text(
-                                'Pay',
-                                style: TextStyle(
-                                  fontFamily: 'Readex Pro',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                          );
+                        },
                       );
                     },
                   ),
