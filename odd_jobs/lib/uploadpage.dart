@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 
 class UploadPageWidget extends StatefulWidget {
   const UploadPageWidget({super.key});
@@ -18,6 +22,12 @@ class _UploadPageWidgetState extends State<UploadPageWidget> {
   final TextEditingController _payTextController = TextEditingController();
   final FocusNode _payFocusNode = FocusNode();
 
+  final TextEditingController _locationTextController = TextEditingController();
+  final FocusNode _locationFocusNode = FocusNode();
+
+  File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+
   @override
   void dispose() {
     _jobTitleTextController.dispose();
@@ -26,7 +36,79 @@ class _UploadPageWidgetState extends State<UploadPageWidget> {
     _descriptionFocusNode.dispose();
     _payTextController.dispose();
     _payFocusNode.dispose();
+    _locationTextController.dispose();
+    _locationFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<String?> _uploadImage(File image) async {
+    try {
+      final storageRef = FirebaseStorage.instance.ref();
+      final imageRef = storageRef.child('images/${DateTime.now().millisecondsSinceEpoch}.jpg');
+      final uploadTask = imageRef.putFile(image);
+      final snapshot = await uploadTask.whenComplete(() {});
+      return await snapshot.ref.getDownloadURL();
+    } catch (e) {
+      print('Failed to upload image: $e');
+      return null;
+    }
+  }
+
+  Future<void> _uploadJob() async {
+    final String jobTitle = _jobTitleTextController.text;
+    final String description = _descriptionTextController.text;
+    final String location = _locationTextController.text;
+    final String pay = _payTextController.text;
+
+    if (jobTitle.isNotEmpty && description.isNotEmpty && location.isNotEmpty && pay.isNotEmpty) {
+      // You can add more validations as needed
+
+      try {
+        String? imageUrl;
+        if (_selectedImage != null) {
+          imageUrl = await _uploadImage(_selectedImage!);
+        }
+
+        await FirebaseFirestore.instance.collection('Jobs').add({
+          'JobTitle': jobTitle,
+          'Description': description,
+          'Location': location,
+          'Pay': pay,
+          'Image': imageUrl ?? 'https://images.unsplash.com/photo-1639843906796-a2c47fc24330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTYyMDF8MHwxfHNlYXJjaHwxNHx8ZmlsZSUyMHVwbG9hZHxlbnwwfHx8fDE3MTU2MzU1ODV8MA&ixlib=rb-4.0.3&q=80&w=1080',
+          'createdAt': Timestamp.now(),
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Job uploaded successfully!')),
+        );
+
+        // Clear the form fields
+        _jobTitleTextController.clear();
+        _descriptionTextController.clear();
+        _locationTextController.clear();
+        _payTextController.clear();
+        setState(() {
+          _selectedImage = null;
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to upload job: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+    }
   }
 
   @override
@@ -98,26 +180,36 @@ class _UploadPageWidgetState extends State<UploadPageWidget> {
                   ),
                 ),
                 const SizedBox(height: 12.0),
-                Container(
-                  width: 270,
-                  height: 270,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    boxShadow: const [
-                      BoxShadow(
-                        blurRadius: 4,
-                        color: Colors.black26,
-                        offset: Offset(0, 2),
-                      )
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      'https://images.unsplash.com/photo-1639843906796-a2c47fc24330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTYyMDF8MHwxfHNlYXJjaHwxNHx8ZmlsZSUyMHVwbG9hZHxlbnwwfHx8fDE3MTU2MzU1ODV8MA&ixlib=rb-4.0.3&q=80&w=1080',
-                      width: 300,
-                      height: 200,
-                      fit: BoxFit.cover,
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    width: 270,
+                    height: 270,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      boxShadow: const [
+                        BoxShadow(
+                          blurRadius: 4,
+                          color: Colors.black26,
+                          offset: Offset(0, 2),
+                        )
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: _selectedImage != null
+                          ? Image.file(
+                              _selectedImage!,
+                              width: 300,
+                              height: 200,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.network(
+                              'https://images.unsplash.com/photo-1639843906796-a2c47fc24330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTYyMDF8MHwxfHNlYXJjaHwxNHx8ZmlsZSUyMHVwbG9hZHxlbnwwfHx8fDE3MTU2MzU1ODV8MA&ixlib=rb-4.0.3&q=80&w=1080',
+                              width: 300,
+                              height: 200,
+                              fit: BoxFit.cover,
+                            ),
                     ),
                   ),
                 ),
@@ -185,19 +277,35 @@ class _UploadPageWidgetState extends State<UploadPageWidget> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).scaffoldBackgroundColor,
                   ),
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      // Implement your location picker here
-                    },
-                    icon: const Icon(Icons.place),
-                    label: const Text('Select Location'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary, backgroundColor: Theme.of(context).primaryColor,
-                      textStyle: GoogleFonts.readexPro(),
-                      shape: RoundedRectangleBorder(
+                  child: TextFormField(
+                    controller: _locationTextController,
+                    focusNode: _locationFocusNode,
+                    decoration: InputDecoration(
+                      labelText: 'Location:',
+                      labelStyle: GoogleFonts.readexPro(),
+                      hintStyle: GoogleFonts.readexPro(),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Theme.of(context).dividerColor,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Theme.of(context).primaryColor,
+                          width: 2,
+                        ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
+                    style: GoogleFonts.readexPro(),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a location';
+                      }
+                      return null;
+                    },
                   ),
                 ),
                 const SizedBox(height: 12.0),
@@ -266,12 +374,7 @@ class _UploadPageWidgetState extends State<UploadPageWidget> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Implement your upload logic here
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Uploading...')),
-                      );
-                    },
+                    onPressed: _uploadJob,
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white, backgroundColor: Theme.of(context).primaryColor,
                       textStyle: GoogleFonts.readexPro(),
@@ -291,3 +394,4 @@ class _UploadPageWidgetState extends State<UploadPageWidget> {
     );
   }
 }
+
