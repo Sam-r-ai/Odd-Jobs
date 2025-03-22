@@ -54,7 +54,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('Jobs');
 
     if (_searchQuery.isNotEmpty) {
-      query = query.where('Description', isGreaterThanOrEqualTo: _searchQuery).where('Description', isLessThanOrEqualTo: _searchQuery + '\uf8ff');
+      query = query.where('Description', isGreaterThanOrEqualTo: _searchQuery).where('Description', isLessThanOrEqualTo: '$_searchQuery\uf8ff');
     }
 
     switch (_selectedPayRange) {

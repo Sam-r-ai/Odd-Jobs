@@ -115,7 +115,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    ImageProvider profileImage = _image != null ? FileImage(_image!) as ImageProvider : const NetworkImage('https://picsum.photos/200') as ImageProvider;
+    ImageProvider profileImage = _image != null ? FileImage(_image!) : const NetworkImage('https://picsum.photos/200');
 
     return Scaffold(
       appBar: AppBar(
